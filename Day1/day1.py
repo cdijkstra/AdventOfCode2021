@@ -2,20 +2,9 @@ file = open('data.txt')
 lines = file.readlines()
 
 totalCount = 0
-lineMinusTwo = 'Unknown'
-LineMinusOne = 'Unknown'
-previousSum = 'Unknown'
 
-for line in lines:
-    newLine = int(line)
-    if lineMinusTwo != 'Unknown' and LineMinusOne != 'Unknown':
-        sum = newLine + LineMinusOne + lineMinusTwo
-        if previousSum != 'Unknown':
-            if sum - previousSum > 0:
-                totalCount += 1
-        previousSum = sum
-
-    lineMinusTwo = LineMinusOne
-    LineMinusOne = newLine
+for idx in range(1, len(lines) - 1): # Always consider N, but also N-1 and N+1
+    if int(lines[idx + 1]) > int(lines[idx - 1]) > 0:
+        totalCount += 1
     
 print(totalCount)
