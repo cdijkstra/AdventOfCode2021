@@ -9,14 +9,14 @@ namespace Day3
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("data.txt");
+            string[] lines = File.ReadAllLines("dummydata.txt");
             int amountOfLines = lines.Length;
             int digitsPerLine = lines[0].Length;
             
-            List<int>[] allDigits = new List<int>[digitsPerLine];
+            List<List<int>> allDigits = new List<List<int>>() {};
             for (var idx = 0; idx < digitsPerLine; idx++)
             {
-                allDigits[idx] = new List<int>();
+                allDigits.Add(new List<int>());
             }
 
             for (int currentLine = 0; currentLine < amountOfLines; currentLine++)
@@ -28,7 +28,7 @@ namespace Day3
                 {
                     // Convert char to int
                     var digit = (int) (digits[readDigit] - '0');
-                    allDigits[readDigit].Add(digit);
+                    allDigits.ElementAt(readDigit).Add(digit);
                 }
             }
 
@@ -51,6 +51,17 @@ namespace Day3
             }
 
             Console.WriteLine(gammaRate * epsilonRate);
+
+            List<int> oxygenRate = allDigits.SingleOrDefault(digits => digits.ToArray() == gammaRates);
+
+            if (oxygenRate.Any())
+            {
+                Console.WriteLine("Yeah");
+                foreach(var i in oxygenRate){
+                    Console.WriteLine(i);
+                }
+            }
+
         }
     }
 }
