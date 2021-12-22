@@ -19,7 +19,7 @@ namespace TreacherousWhales
             Dictionary<int, int> positionToFuel = new Dictionary<int, int>();
             for (var tryPosition = numbers.Min(); tryPosition <= numbers.Max(); tryPosition++)
             {
-                var sumFuel = numbers.Sum(number => Math.Abs(number - tryPosition));
+                var sumFuel = numbers.Sum(number => Enumerable.Sum(Enumerable.Range(1, Math.Abs(number - tryPosition))));
                 positionToFuel.Add(tryPosition, sumFuel);
             }
             
