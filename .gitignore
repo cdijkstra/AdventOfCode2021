@@ -17,3 +17,7 @@ indexLayout.xml
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+**/.gitignore
+Folder.DotSettings.*
+**/.idea/.*
