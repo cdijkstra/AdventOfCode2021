@@ -28,55 +28,62 @@ namespace Day11
 
         public int CalculateForDay(int lastDay)
         {
-            for (int day = 1; day <= lastDay; day++)
+            for (var day = 1; day <= lastDay; day++)
             {
-                _amountOflightForDay = 0;
-                // Increase all points in grid
-                for (int idx = 0; idx < _grid.Count; idx++)
-                {
-                    for (int idy = 0; idy < _grid[idx].Count; idy++)
-                    {
-                        _grid[idx][idy]++;
-                    }
-                }
-                
-                for (int idx = 0; idx < _grid.Count; idx++)
-                {
-                    for (int idy = 0; idy < _grid[idx].Count; idy++)
-                    {
-                        if (_grid[idx][idy] > 9)
-                        {
-                            if (!_octopusLight.Contains((idx, idy)))
-                            {
-                                _amountOflightForDay++;
-                                _octopusLight.Add((idx, idy));
-                                Console.Write($"Octopus {idx},{idy} is shining");
-                            
-                            }
-                            
-                            IncreaseSurroundingPoints(idx, idy);
-                        }
-                    }
-                }
-                
-                _octopusLight.Clear();
-                for (int idx = 0; idx < _grid.Count; idx++)
-                {
-                    for (int idy = 0; idy < _grid[idx].Count; idy++)
-                    {
-                        if (_grid[idx][idy] > 9)
-                        {
-                            _grid[idx][idy] = 0;
-                        }
-                    }
-                }
-                
-                _amountOfTotalLight += _amountOflightForDay;
+                IncreaseGridPoints();
+                CalculateFlashes();
+                ResetFlashedOctopi();
             }
 
             return _amountOfTotalLight;
         }
-        
+
+        private void CalculateFlashes()
+        {
+            for (var idx = 0; idx < _grid.Count; idx++)
+            {
+                for (var idy = 0; idy < _grid[idx].Count; idy++)
+                {
+                    if (_grid[idx][idy] <= 9) continue;
+
+                    if (!_octopusLight.Contains((idx, idy)))
+                    {
+                        FlashEvent(idx, idy);
+                    }
+                }
+            }
+            
+            _amountOfTotalLight += _amountOflightForDay;
+        }
+
+        private void IncreaseGridPoints()
+        {
+            _amountOflightForDay = 0;
+            // Increase all points in grid
+            for (int idx = 0; idx < _grid.Count; idx++)
+            {
+                for (int idy = 0; idy < _grid[idx].Count; idy++)
+                {
+                    _grid[idx][idy]++;
+                }
+            }
+        }
+
+        private void ResetFlashedOctopi()
+        {
+            _octopusLight.Clear();
+            foreach (var row in _grid)
+            {
+                for (var idy = 0; idy < row.Count; idy++)
+                {
+                    if (row[idy] > 9)
+                    {
+                        row[idy] = 0;
+                    }
+                }
+            }
+        }
+
         private void IncreaseSurroundingPoints(int idx, int idy)
         {
             if (idy > 0)
@@ -118,12 +125,18 @@ namespace Day11
 
         private void IncreaseAndSeeIfFlashes(int idx, int idy)
         {
-            if (++_grid[idx][idy] > 9 && !_octopusLight.Contains((idx, idy)))
+            ++_grid[idx][idy];
+            if (_grid[idx][idy] > 9 && !_octopusLight.Contains((idx, idy)))
             {
-                _amountOflightForDay++;
-                _octopusLight.Add((idx, idy));
-                Console.Write($"Octopus {idx},{idy} is shining");
+                FlashEvent(idx, idy);
             }
+        }
+
+        private void FlashEvent(int idx, int idy)
+        {
+            _amountOflightForDay++;
+            _octopusLight.Add((idx, idy));
+            IncreaseSurroundingPoints(idx, idy);
         }
     }
 }
