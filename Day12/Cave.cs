@@ -38,16 +38,25 @@ namespace Day12
             }
         }
 
-        public void FindSolution()
+        public void FindSolutionForSmallCavesOnce()
         {
             var visited = new List<string>();
             var beginPoint = "start";
-            GoThroughCave(beginPoint, visited);
-            Console.Write("Number of ways through the cave = " + _totalCount);
+            GoThroughCaveOne(beginPoint, visited);
+            Console.WriteLine("Number of ways through the cave = " + _totalCount);
+            _totalCount = 0;
+        }
+        
+        public void FindSolutionForSmallCavesTwice()
+        {
+            var visited = new List<string>();
+            var beginPoint = "start";
+            GoThroughCaveTwo(beginPoint, visited);
+            Console.WriteLine("Number of ways through the cave = " + _totalCount);
             _totalCount = 0;
         }
 
-        private void GoThroughCave(string entryPoint, ICollection<string> visited, string points = "")
+        private void GoThroughCaveOne(string entryPoint, ICollection<string> visited, string points = "")
         {
             points += $", {entryPoint}";
             if (entryPoint.Any(char.IsLower)) // Capital caves are excluded
@@ -64,10 +73,40 @@ namespace Day12
                 }
                 else
                 {
-                    GoThroughCave(newPoint, visited, points);
+                    GoThroughCaveOne(newPoint, visited, points);
                 }
             }
 
+            visited.Remove(entryPoint);
+        }
+        
+        private void GoThroughCaveTwo(string entryPoint, List<string> visited, string points = "")
+        {
+            points += $", {entryPoint}";
+            if (entryPoint.Any(char.IsLower)) // Capital caves are excluded
+            {
+                visited.Add(entryPoint);
+            }
+
+            var stopIf = visited.GroupBy(x => x).SelectMany(g => g.Skip(1)).Count() > 1;
+            if (!stopIf)
+            { 
+                foreach (var newPoint in _caveConnections[entryPoint])
+                {
+                    if (newPoint == "end")
+                    {
+                        _totalCount++;
+                        visited.Remove(entryPoint);
+                        // Console.WriteLine(points);
+                    }
+                    else
+                    {
+                        GoThroughCaveOne(newPoint, visited, points);
+                    }
+                }
+    
+                visited.Remove(entryPoint);
+            }
             visited.Remove(entryPoint);
         }
     }
