@@ -5,8 +5,8 @@
         static void Main(string[] args)
         {
             var cave = new Cave("data.txt");
-            cave.FindSolutionForSmallCavesOnce();
-            cave.FindSolutionForSmallCavesTwice();
+            cave.FindSolutionForCave(true);
+            cave.FindSolutionForCave(false);
         }
     }
 }

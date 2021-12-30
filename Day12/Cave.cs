@@ -41,24 +41,22 @@ namespace Day12
             }
         }
 
-        public void FindSolutionForSmallCavesOnce()
+        public void FindSolutionForCave(bool visitSmallCavesOnce)
         {
             var visited = new List<string>();
             var beginPoint = "start";
-            GoThroughCaveOne(beginPoint, visited);
+            if (visitSmallCavesOnce)
+            {
+                GoThroughCaveOne(beginPoint, visited);
+            }
+            else
+            {
+                GoThroughCaveTwo(beginPoint, visited);
+            }
             Console.WriteLine("Number of ways through the cave = " + _totalCount);
             _totalCount = 0;
         }
         
-        public void FindSolutionForSmallCavesTwice()
-        {
-            var visited = new List<string>();
-            var beginPoint = "start";
-            GoThroughCaveTwo(beginPoint, visited);
-            Console.WriteLine("Number of ways through the cave = " + _totalCount);
-            _totalCount = 0;
-        }
-
         private void GoThroughCaveOne(string entryPoint, ICollection<string> visited, string points = "")
         {
             points += $", {entryPoint}";
