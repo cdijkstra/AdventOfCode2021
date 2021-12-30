@@ -8,8 +8,11 @@ namespace Day12
     public class Cave
     {
         private readonly Dictionary<string, List<string>> _caveConnections = new();
-        private int _totalCount = 0;
-
+        private int _totalCount;
+        
+        private readonly string _startPoint = "start";
+        private readonly string _endPoint = "end";
+        
         public Cave(string text)
         {
             foreach (string line in File.ReadLines($"../../../Input/{text}"))
@@ -63,13 +66,12 @@ namespace Day12
             {
                 visited.Add(entryPoint);
             }
-            
+
             foreach (var newPoint in _caveConnections[entryPoint].Where(entry => !visited.Contains(entry)))
             {
-                if (newPoint == "end")
+                if (newPoint == _endPoint)
                 {
                     _totalCount++;
-                    // Console.WriteLine(points);
                 }
                 else
                 {
@@ -91,22 +93,19 @@ namespace Day12
             var stopIf = visited.GroupBy(x => x).SelectMany(g => g.Skip(1)).Count() > 1;
             if (!stopIf)
             { 
-                foreach (var newPoint in _caveConnections[entryPoint])
+                foreach (var newPoint in _caveConnections[entryPoint].Where(x => x != _startPoint))
                 {
-                    if (newPoint == "end")
+                    if (newPoint == _endPoint)
                     {
                         _totalCount++;
-                        visited.Remove(entryPoint);
-                        // Console.WriteLine(points);
                     }
                     else
                     {
-                        GoThroughCaveOne(newPoint, visited, points);
+                        GoThroughCaveTwo(newPoint, visited, points);
                     }
                 }
-    
-                visited.Remove(entryPoint);
             }
+            
             visited.Remove(entryPoint);
         }
     }

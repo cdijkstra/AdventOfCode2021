@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            var cave = new Cave("dummydata.txt");
+            var cave = new Cave("data.txt");
             cave.FindSolutionForSmallCavesOnce();
             cave.FindSolutionForSmallCavesTwice();
         }
