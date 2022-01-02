@@ -7,13 +7,13 @@ namespace Day14
 {
     class Polymer
     {
-        private char[] _polymer;
+        private string _polymer;
         private Dictionary<string, char> _tuples = new();
         
         public Polymer(string fileName)
         {
             var file = new List<string>(File.ReadAllLines($"../../../Input/{fileName}"));
-            _polymer = file.First().ToCharArray();
+            _polymer = file.First();
 
             foreach (var line in file.Where(l => l.Contains("->")))
             {
@@ -22,27 +22,30 @@ namespace Day14
             }
         }
 
-        public void CalculateSolution()
+        public void CalculateSolution(int numberOfRepeats = 1)
         {
-            List<(int index, char newValue)> newInserts = new();
-            for (var idx = 0; idx != _polymer.Length - 1; idx++)
+            for (int repeat = 1; repeat <= numberOfRepeats; repeat++)
             {
-                var pair = (_polymer.ElementAt(idx) + _polymer.ElementAt(idx + 1).ToString());
-                if (_tuples.ContainsKey(pair))
+                List<(int index, char newValue)> newInserts = new();
+                for (var idx = 0; idx != _polymer.Length - 1; idx++)
                 {
-                    newInserts.Add((idx + 1, _tuples[pair]));
+                    var pair = (_polymer.ElementAt(idx) + _polymer.ElementAt(idx + 1).ToString());
+                    if (_tuples.ContainsKey(pair))
+                    {
+                        newInserts.Add((idx + 1, _tuples[pair]));
+                    }
+                }
+
+                foreach (var insert in newInserts.OrderByDescending(x => x.index))
+                {
+                    _polymer = _polymer.Insert(insert.index, insert.newValue.ToString());
                 }
             }
 
-            string polymer = new string(_polymer);
-            foreach (var insert in newInserts.OrderByDescending(x => x.index))
-            {
-                polymer = polymer.Insert(insert.index, insert.newValue.ToString());
-            }
-            
-            _polymer = polymer.ToCharArray();
-            
-            Console.Write(_polymer);
+            var biggestQuantity = _polymer.GroupBy(ch => ch).OrderByDescending(ch => ch.Count()).First().Count();
+            var smallestQuantity = _polymer.GroupBy(ch => ch).OrderBy(ch => ch.Count()).First().Count();
+
+            Console.Write(biggestQuantity - smallestQuantity);
         }
     }
 }
