@@ -7,8 +7,8 @@ namespace Day13
         static void Main(string[] args)
         {
             var fold = new Fold("data.txt");
-            fold.FindAmountOfDotsAfterFolds();
-            fold.ShowSolution();
+            fold.UnfoldOnce();
+            fold.UnfoldAll();
         }
     }
 }
