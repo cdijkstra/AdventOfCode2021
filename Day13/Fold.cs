@@ -45,41 +45,56 @@ namespace Day13
             }
         }
 
-        public void FindAmountOfDotsAfterFolds(int amountOfFolds = 1)
+        public void FindAmountOfDotsAfterFolds()
         {
-            switch (_folds.First().axis)
+            foreach (var fold in _folds)
             {
-                // Assumption for x,y: always fold in middle
-                case "x":
-                    foreach (var idx in Enumerable.Range(1, (_grid.Count - 1) / 2))
-                    {
-                        foreach (var idy in Enumerable.Range(0, _grid.ElementAt(idx).Count))
+                switch (fold.axis)
+                {
+                    // Assumption for x,y: always fold in middle
+                    case "x":
+                        foreach (var idx in Enumerable.Range(1, (_grid.Count - 1) / 2))
                         {
-                            _grid[(_grid.Count - 1) / 2 - idx][idy] |= _grid[(_grid.Count - 1) / 2 + idx][idy];
+                            foreach (var idy in Enumerable.Range(0, _grid.ElementAt(idx).Count))
+                            {
+                                _grid[(_grid.Count - 1) / 2 - idx][idy] |= _grid[(_grid.Count - 1) / 2 + idx][idy];
+                            }
                         }
-                    }
 
-                    _grid.RemoveRange((_grid.Count - 1) / 2, (_grid.Count + 1) / 2);
+                        _grid.RemoveRange((_grid.Count - 1) / 2, (_grid.Count + 1) / 2);
 
-                    break;
+                        break;
 
-                case "y":
-                    foreach (var row in _grid)
-                    {
-                        foreach (var idy in Enumerable.Range(1, (row.Count - 1) / 2 ))
+                    case "y":
+                        foreach (var row in _grid)
                         {
-                            row[(row.Count - 1) / 2 - idy] |= row[(row.Count - 1) / 2 + idy];
-                        }
-                        
-                        row.RemoveRange((row.Count - 1) / 2, (row.Count + 1) / 2);
-                    }
+                            foreach (var idy in Enumerable.Range(1, (row.Count - 1) / 2))
+                            {
+                                row[(row.Count - 1) / 2 - idy] |= row[(row.Count - 1) / 2 + idy];
+                            }
 
-                    break;
-                default:
-                    throw new ArgumentException("Unexpected entry");
+                            row.RemoveRange((row.Count - 1) / 2, (row.Count + 1) / 2);
+                        }
+
+                        break;
+                    default:
+                        throw new ArgumentException("Unexpected entry");
+                }
             }
-            
-            var numberOfTrue = _grid.SelectMany(x => x.Where(b => b)).Count();
+        }
+
+        public void ShowSolution()
+        {
+            foreach (var column in Enumerable.Range(0, _grid.First().Count))
+            {
+                foreach (var row in _grid)
+                {
+                    Console.Write(Convert.ToInt32(row[column]));
+                }
+                Console.Write('\n');
+            }
+
+            var numberOfTrue = _grid.SelectMany(x => x.Where(x => x)).Count();
             Console.WriteLine(numberOfTrue);
         }
     }

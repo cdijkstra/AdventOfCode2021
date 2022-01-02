@@ -8,6 +8,7 @@ namespace Day13
         {
             var fold = new Fold("data.txt");
             fold.FindAmountOfDotsAfterFolds();
+            fold.ShowSolution();
         }
     }
 }
