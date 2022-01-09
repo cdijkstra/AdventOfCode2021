@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             var polymer = new Polymer("data.txt");
-            polymer.CalculateSolution(10);
+            polymer.CalculateSolution(40);
         }
     }
 }
