@@ -4,8 +4,11 @@
     {
         static void Main(string[] args)
         {
-            var chitons = new Chitons("data.txt");
-            chitons.FindPathWithLowestRisk();
+            var chitonSmallMap = new Chitons("data.txt");
+            chitonSmallMap.FindPathWithLowestRisk();
+            
+            var chitonBigMap = new Chitons("data.txt", true);
+            chitonBigMap.FindPathWithLowestRisk();
         }
     }
 }

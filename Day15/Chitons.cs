@@ -2,41 +2,58 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Day15
 {
     class RiskEntry
     {
-        public RiskEntry(int value, long risk)
+        public RiskEntry(int value)
         {
             Value = value;
-            Risk = risk;
+            Risk = Int64.MaxValue;
         }
         
-        public long Risk = Int64.MaxValue;
-        public int Value = 0;
+        public long Risk;
+        public int Value;
     }
     
     class Chitons
     {
         private List<List<RiskEntry>> _riskLevelGrid = new();
         private Queue<(int x, int y)> _queue = new();
-        private readonly int _xMax;
-        private readonly int _yMax;
+        private readonly int _xMaxIndex;
+        private readonly int _yMaxIndex;
         
-        public Chitons(string fileName)
+        public Chitons(string fileName, bool fullMap = false)
         {
             var file = new List<string>(File.ReadAllLines($"../../../Input/{fileName}"));
-            foreach (var line in file)
+            if (fullMap == true)
             {
-                List<RiskEntry> newEntry = line.Select(ch => new RiskEntry(int.Parse(ch.ToString()), long.MaxValue)).ToList();
-                _riskLevelGrid.Add(newEntry);
+                for (int repeatY = 0; repeatY != 5; repeatY++)
+                {
+                    foreach (var line in file)
+                    {
+                        List<RiskEntry> newEntry = new();
+                        for (int repeatX = 0; repeatX != 5; repeatX++)
+                        {
+                            newEntry.AddRange(line.Select(ch =>
+                                new RiskEntry(int.Parse(ch.ToString()) + repeatX + repeatY > 9 ? (int.Parse(ch.ToString()) + repeatX + repeatY) % 9 : int.Parse(ch.ToString()) + repeatX + repeatY)).ToList());
+                        }
+
+                        _riskLevelGrid.Add(newEntry);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var newEntry in file.Select(line => line.Select(ch => new RiskEntry(int.Parse(ch.ToString()))).ToList()))
+                {
+                    _riskLevelGrid.Add(newEntry);
+                }
             }
 
-            _xMax = _riskLevelGrid.First().Count - 1;
-            _yMax = _riskLevelGrid.Count - 1;
+            _xMaxIndex = _riskLevelGrid.First().Count - 1;
+            _yMaxIndex = _riskLevelGrid.Count - 1;
         }
 
         public void FindPathWithLowestRisk()
@@ -56,17 +73,17 @@ namespace Day15
                     ContinueThroughMazeIfRequired(x, y - 1, _riskLevelGrid[x][y].Risk);
                 }
 
-                if (x < _xMax)
+                if (x < _xMaxIndex)
                 {
                     ContinueThroughMazeIfRequired(x + 1, y, _riskLevelGrid[x][y].Risk);
                 }
-                if (y < _xMax)
+                if (y < _xMaxIndex)
                 {
                     ContinueThroughMazeIfRequired(x, y + 1, _riskLevelGrid[x][y].Risk);
                 }
             }
             
-            Console.WriteLine($"The cumulative risk level is {_riskLevelGrid[_xMax][_yMax].Risk}");
+            Console.WriteLine($"The cumulative risk level is {_riskLevelGrid[_xMaxIndex][_yMaxIndex].Risk}");
         }
 
         private void ContinueThroughMazeIfRequired(int newX, int newY, long currentRiskLevel)
