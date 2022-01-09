@@ -22,8 +22,10 @@ namespace Day15
     class Chitons
     {
         private List<List<RiskEntry>> _riskLevelGrid = new();
+        private Queue<(int x, int y)> _queue = new();
         private readonly int _xMax;
         private readonly int _yMax;
+        
         public Chitons(string fileName)
         {
             var file = new List<string>(File.ReadAllLines($"../../../Input/{fileName}"));
@@ -39,39 +41,41 @@ namespace Day15
 
         public void FindPathWithLowestRisk()
         {
-            var queue = new Queue<(int x, int y)>();
-            queue.Enqueue((0, 0));
+            _queue.Enqueue((0, 0));
             _riskLevelGrid[0][0].Risk = 0;
 
-            while (queue.Any())
+            while (_queue.Any())
             {
-                var (x, y) = queue.Dequeue();
-                if (x != 0 && _riskLevelGrid[x - 1][y].Risk > _riskLevelGrid[x - 1][y].Value + _riskLevelGrid[x][y].Risk)
+                var (x, y) = _queue.Dequeue();
+                if (x > 0)
                 {
-                    _riskLevelGrid[x - 1][y].Risk = _riskLevelGrid[x - 1][y].Value + _riskLevelGrid[x][y].Risk;
-                    queue.Enqueue((x - 1, y));
+                    ContinueThroughMazeIfRequired(x - 1, y, _riskLevelGrid[x][y].Risk);
+                }
+                if (y > 0)
+                {
+                    ContinueThroughMazeIfRequired(x, y - 1, _riskLevelGrid[x][y].Risk);
                 }
 
-                if (x != _xMax && _riskLevelGrid[x + 1][y].Risk > _riskLevelGrid[x + 1][y].Value + _riskLevelGrid[x][y].Risk)
+                if (x < _xMax)
                 {
-                    _riskLevelGrid[x + 1][y].Risk = _riskLevelGrid[x + 1][y].Value + _riskLevelGrid[x][y].Risk;
-                    queue.Enqueue((x + 1, y));
+                    ContinueThroughMazeIfRequired(x + 1, y, _riskLevelGrid[x][y].Risk);
                 }
-            
-                if (y != 0 && _riskLevelGrid[x][y - 1].Risk > _riskLevelGrid[x][y - 1].Value + _riskLevelGrid[x][y].Risk)
+                if (y < _xMax)
                 {
-                    _riskLevelGrid[x][y - 1].Risk = _riskLevelGrid[x][y - 1].Value + _riskLevelGrid[x][y].Risk;
-                    queue.Enqueue((x, y - 1));
-                }
-            
-                if (y != _xMax && _riskLevelGrid[x][y + 1].Risk > _riskLevelGrid[x][y + 1].Value + _riskLevelGrid[x][y].Risk)
-                {
-                    _riskLevelGrid[x][y + 1].Risk = _riskLevelGrid[x][y + 1].Value + _riskLevelGrid[x][y].Risk;
-                    queue.Enqueue((x, y + 1));
+                    ContinueThroughMazeIfRequired(x, y + 1, _riskLevelGrid[x][y].Risk);
                 }
             }
             
-            Console.WriteLine(_riskLevelGrid[_xMax][_yMax].Risk);
+            Console.WriteLine($"The cumulative risk level is {_riskLevelGrid[_xMax][_yMax].Risk}");
+        }
+
+        private void ContinueThroughMazeIfRequired(int newX, int newY, long currentRiskLevel)
+        {
+            if (_riskLevelGrid[newX][newY].Risk <= _riskLevelGrid[newX][newY].Value + currentRiskLevel) 
+                return;
+            
+            _riskLevelGrid[newX][newY].Risk = _riskLevelGrid[newX][newY].Value + currentRiskLevel;
+            _queue.Enqueue((newX, newY));
         }
     }
 }
