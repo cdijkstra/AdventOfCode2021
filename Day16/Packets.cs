@@ -8,14 +8,8 @@ namespace Day16
     public class Packets
     {
         private Queue<int> _digits = new();
+        private List<int> _packetVersions = new();
         
-        private bool _version = true;
-        private bool _id = false;
-        private bool _skip = false;
-
-        private int _packetVersion;
-        private PacketType _packetType;
-
         public Packets(string fileName)
         {
             var message = File.ReadLines($"../../../Input/{fileName}").First();
@@ -87,80 +81,81 @@ namespace Day16
             Console.WriteLine($"\nFinding {_digits.Count}");
         }
 
-        public void SolvePuzzle()
+        public void DecomposePacket()
         {
-            while (_digits.Any() &&  _skip == false)
+            while (_digits.Any() && _digits.Count > 10)
             {
-                if (_version)
+                AddPacketVersion();
+                var packetId = Convert.ToInt32(_digits.Dequeue().ToString() + _digits.Dequeue() + _digits.Dequeue(), 2); 
+                var packetType = GetTypeById(packetId);
+                Console.WriteLine($"Found type {packetType}");
+
+                switch (packetType)
                 {
-                    _packetVersion = Convert.ToInt32(_digits.Dequeue().ToString() + _digits.Dequeue() + _digits.Dequeue(), 2);
-                    _version = false;
-                    _id = true;
-                    Console.WriteLine($"Found version {_packetVersion}");
-                }
-                else if (_id)
-                {
-                    var packetId = Convert.ToInt32(_digits.Dequeue().ToString() + _digits.Dequeue() + _digits.Dequeue(), 2);
-                    _packetType = GetTypeById(packetId);
-                    Console.WriteLine($"Found type {_packetType}");
-                    _id = false;
-                }
-                else if (_packetType == PacketType.Operator)
-                {
-                    int lengthId = _digits.Dequeue();
-                    if (lengthId == 0)
+                    case PacketType.Literal:
                     {
-                        string binaryNumberOfBits = "";
-                        for (int idx = 0; idx != 15; idx++)
+                        // Break into sequences of 5 bits
+                        while (_digits.Dequeue() != 0)
                         {
-                            binaryNumberOfBits += _digits.Dequeue().ToString();
+                            DequeueFourTimes();
                         }
 
-                        var numberOfBits = Convert.ToInt32(binaryNumberOfBits, 2);
-                        Console.WriteLine(numberOfBits);
-                        // 15 bit number representing number of bits in subpackages
-                        
-                        // What to do???
-                        _skip = true;
+                        DequeueFourTimes();
+                        break;
                     }
-                    else if (lengthId == 1)
+                    case PacketType.Operator:
                     {
-                        // 11 bit number representing number subpackages
-                        Console.WriteLine(1);
-                        string binaryNumberOfPackages = "";
-                        for (int idx = 0; idx != 11; idx++)
+                        int lengthId = _digits.Dequeue();
+                        switch (lengthId)
                         {
-                            binaryNumberOfPackages += _digits.Dequeue().ToString();
-                        }
-
-                        var numberOfPackets = Convert.ToInt32(binaryNumberOfPackages, 2);
-                        foreach (var repeat in Enumerable.Range(0, numberOfPackets))
-                        {
-                            string value = "";
-                            foreach (var appendDigit in Enumerable.Range(0, 11))
+                            case 0:
                             {
-                                value += _digits.Dequeue().ToString();
+                                string binaryNumberOfBits = "";
+                                for (int idx = 0; idx != 15; idx++)
+                                {
+                                    binaryNumberOfBits += _digits.Dequeue().ToString();
+                                }
+
+                                var numberOfBits = Convert.ToInt32(binaryNumberOfBits, 2);
+                                Console.WriteLine(numberOfBits);
+                                // 15 bit number representing number of bits in subpackages
+                                break;
                             }
-                            int trueValue = Int32.Parse(value);
-                            Console.WriteLine(trueValue);
+                            case 1:
+                            {
+                                // 11 bit number representing number subpackages
+                                Console.WriteLine(1);
+                                string binaryNumberOfPackages = "";
+                                for (int idx = 0; idx != 11; idx++)
+                                {
+                                    binaryNumberOfPackages += _digits.Dequeue().ToString();
+                                }
+                                
+                                var expectedNumberOfRepeats = Convert.ToInt32(binaryNumberOfPackages, 2);
+                                break;
+                            }
                         }
 
-                        _skip = true;
+                        break;
                     }
-                }
-                else if (_packetType == PacketType.Literal)
-                {
-                    // Break into sequences of 5 bits
-                    string literalValue = "";
-                    foreach (var repeat in Enumerable.Range(0, (int) Math.Floor((decimal) (_digits.Count / 5))))
-                    {
-                        _digits.Dequeue(); // Skip first
-                         literalValue += _digits.Dequeue().ToString() + _digits.Dequeue() + _digits.Dequeue() + _digits.Dequeue();
-                    }
-
-                    int litValue =  Convert.ToInt32(literalValue, 2);
                 }
             }
+            
+            Console.Write(_packetVersions.Sum());
+        }
+
+        private void DequeueFourTimes()
+        {
+            _digits.Dequeue();
+            _digits.Dequeue();
+            _digits.Dequeue();
+            _digits.Dequeue();
+        }
+
+        private void AddPacketVersion()
+        {
+            var packetVersion = Convert.ToInt32(_digits.Dequeue().ToString() + _digits.Dequeue() + _digits.Dequeue(), 2);
+            _packetVersions.Add(packetVersion);
         }
 
         private PacketType GetTypeById(int id)
