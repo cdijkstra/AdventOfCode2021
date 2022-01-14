@@ -9,6 +9,7 @@ namespace Day16
     {
         private Queue<int> _digits = new();
         private List<int> _packetVersions = new();
+        private List<(PacketType packetType, int value)> _values = new();
         
         public Packets(string fileName)
         {
@@ -101,10 +102,12 @@ namespace Day16
                         }
 
                         DequeueFourTimes();
+                        _values.Add((packetType, ));
                         break;
                     }
-                    case PacketType.Operator:
+                    default:
                     {
+                        // Operators   
                         int lengthId = _digits.Dequeue();
                         switch (lengthId)
                         {
@@ -118,7 +121,7 @@ namespace Day16
 
                                 var numberOfBits = Convert.ToInt32(binaryNumberOfBits, 2);
                                 Console.WriteLine(numberOfBits);
-                                // 15 bit number representing number of bits in subpackages
+                                // 15 bit number representing number of bits in subpackages=
                                 break;
                             }
                             case 1:
@@ -131,7 +134,6 @@ namespace Day16
                                     binaryNumberOfPackages += _digits.Dequeue().ToString();
                                 }
                                 
-                                var expectedNumberOfRepeats = Convert.ToInt32(binaryNumberOfPackages, 2);
                                 break;
                             }
                         }
@@ -160,7 +162,23 @@ namespace Day16
 
         private PacketType GetTypeById(int id)
         {
-            return id == 4 ? PacketType.Literal : PacketType.Operator;
+            if (id == 0)
+                return PacketType.Sum;
+            if (id == 1)
+                return PacketType.Product;
+            if (id == 2)
+                return PacketType.Minimum;
+            if (id == 3)
+                return PacketType.Maximum;
+            if (id == 4)
+                return PacketType.Literal;
+            if (id == 5)
+                return PacketType.GT;
+            if (id == 6)
+                return PacketType.LT;
+            if (id == 7)
+                return PacketType.ET;
+            return PacketType.Unknown;
         }
     }
 }
