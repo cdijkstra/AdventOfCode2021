@@ -10,6 +10,12 @@ namespace Day18.Input
     public class Snailfish
     {
         private List<string> _snailFish;
+        private string _currentReadFish;
+        private string _nextReadSnailFish;
+
+        private bool _explodesDone = false;
+        private bool _splitsDone = false;
+        
         private string _currentSnailFish;
         public Snailfish(string fileName)
         {
@@ -18,24 +24,37 @@ namespace Day18.Input
 
         public void FindSolution()
         {
-            _currentSnailFish = _snailFish.First();
-            while (!ExplodesDone())
-            {
-                Console.WriteLine("Try again exploding");
-            }
-            while (!ReplacePairsDone())
-            {
-                Console.WriteLine("Try again replacing");
-            }
+            _currentReadFish = _snailFish.ElementAt(0);
+            _nextReadSnailFish = _snailFish.ElementAt(1);
+            
+            AddSnailFish();
+            
+            Console.WriteLine($"Adding up resulting in {_currentSnailFish}");
+            
+            Console.WriteLine("Start exploding");
 
-            foreach (var test in _currentSnailFish)
+            while(!_explodesDone || !_splitsDone)
             {
-                Console.Write(test);
+                while (!_explodesDone)
+                {
+                    Exploding();
+                }
+                Splitting();
             }
         }
 
-        private bool ExplodesDone()
+        private void AddSnailFish()
         {
+            var strBuilder = new StringBuilder(_currentReadFish);
+            strBuilder.Insert(0, '[');
+            strBuilder.Append($",{_nextReadSnailFish}]");
+            _currentSnailFish = strBuilder.ToString();
+        }
+        
+        private void Exploding()
+        {
+            Console.WriteLine("Exploding");
+            
             char[] charsSoFar = {_currentSnailFish[0]};
             
             foreach (var idx in Enumerable.Range(1, _currentSnailFish.Length - 1))
@@ -86,13 +105,15 @@ namespace Day18.Input
                     
                     // Replace right side if applicable
                     int rightInt;
-                    int rightIntIndex = idx + 3 + Convert.ToInt32(extraAddedLeft);
+                    int rightIntIndex = idx + 3 + Convert.ToInt32(extraAddedLeft); // Compared to position of '['
                     var successParseRight = int.TryParse(_currentSnailFish[rightIntIndex].ToString(), out rightInt);
                     if (!successParseRight)
+                    {
                         continue;
+                    }
+                    
                     var up = rightIntIndex + 1;
                     bool replaceRight = false;
-                    bool addedExtraRight = false;
                     while (up != _currentSnailFish.Length && replaceRight == false)
                     {
                         if (char.IsDigit(_currentSnailFish[up]))
@@ -100,18 +121,15 @@ namespace Day18.Input
                             var strBuilder = new StringBuilder(_currentSnailFish);
                             var replaceInt = int.Parse(_currentSnailFish[up].ToString());
                             
-                            if (replaceInt + rightInt < 9)
+                            strBuilder.Remove(up, 1);
+                            if (replaceInt + rightInt <= 9)
                             {
-                                strBuilder.Remove(up, 1);
                                 strBuilder.Insert(up, (char) ('0' + replaceInt + rightInt));
                             }
                             else
                             {
                                 var twoChars = (replaceInt + rightInt).ToString().ToCharArray();
-                                
-                                strBuilder.Remove(up, 1);
-                                strBuilder.Insert(up, twoChars[0]);
-                                strBuilder.Insert(up + 1, twoChars[1]);
+                                strBuilder.Insert(up, $"{twoChars[0]}{twoChars[1]}");
                             }
 
                             _currentSnailFish = strBuilder.ToString();
@@ -122,25 +140,26 @@ namespace Day18.Input
                     }
                     
                     var newStrBuilder = new StringBuilder(_currentSnailFish);
-                    newStrBuilder.Remove(rightIntIndex + 2, 1); // ,
-                    newStrBuilder.Remove(rightIntIndex + 1, 1); // ]
-                    newStrBuilder.Remove(rightIntIndex, 1); // [0-9]
-                    
-                    newStrBuilder.Remove(rightIntIndex - 2, 1); // Replace number
-                    newStrBuilder.Insert(rightIntIndex - 2, "0");
-                    newStrBuilder.Remove(rightIntIndex - 3, 1);
+                    newStrBuilder.Remove(rightIntIndex - 3, 5); // [A,B] ,
+                    newStrBuilder.Insert(rightIntIndex - 3, "0");
                     _currentSnailFish = newStrBuilder.ToString();
                     // Start function again
-                    return false;
+                    Console.WriteLine(_currentSnailFish);
+                    
+                    _explodesDone = false;
+                    return;
                 }
             }
 
             // No more explosions
-            return true;
+            Console.WriteLine("Returning true");
+            _explodesDone = true;
         }
 
-        private bool ReplacePairsDone()
+        private void Splitting()
         {
+            Console.WriteLine("Splitting");
+            
             foreach (var idx in Enumerable.Range(0, _currentSnailFish.Length))
             {
                 if (!char.IsDigit(_currentSnailFish[idx]) || !char.IsDigit(_currentSnailFish[idx + 1])) continue;
@@ -150,21 +169,16 @@ namespace Day18.Input
                 var up = Math.Ceiling((double) intToBeReplaced / 2).ToString(CultureInfo.InvariantCulture).ToCharArray().First();
                 
                 var strBuilder = new StringBuilder(_currentSnailFish);
-                strBuilder.Remove(idx + 4, 1);
-                strBuilder.Remove(idx + 3, 1);
-                strBuilder.Remove(idx + 2, 1);
-                strBuilder.Remove(idx + 1, 1);
-                strBuilder.Remove(idx, 1);
-                strBuilder.Insert(idx, "[");
-                strBuilder.Insert(idx + 1, down);
-                strBuilder.Insert(idx + 2, ",");
-                strBuilder.Insert(idx + 3, up);
-                strBuilder.Insert(idx + 4, "]");
+                strBuilder.Remove(idx, 2);
+                strBuilder.Insert(idx, $"[{down},{up}]");
                 _currentSnailFish = strBuilder.ToString();
-                return false;
-            }
+                Console.WriteLine(_currentSnailFish);
 
-            return true;
+                _explodesDone = false; // Start exploding again
+                _splitsDone = false;
+            }
+            
+            _splitsDone = true;
         }
     }
 }
